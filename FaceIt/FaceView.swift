@@ -12,10 +12,10 @@ import UIKit
 
 class FaceView: UIView {
     @IBInspectable
-    var scale: CGFloat = 0.9
+    var scale: CGFloat = 0.5 { didSet { setNeedsDisplay() } }
     
     @IBInspectable
-    var eyesOpen: Bool = true
+    var eyesOpen: Bool = true { didSet {setNeedsDisplay() } }
     
     @IBInspectable
     var lineWidth: CGFloat = 5.0
@@ -25,6 +25,17 @@ class FaceView: UIView {
     
     @IBInspectable
     var color: UIColor = UIColor.blue
+    
+    func changeScale(byReactingTo pinchRecognizer: UIPinchGestureRecognizer) {
+        switch pinchRecognizer.state {
+        case .changed, .ended:
+            scale *= pinchRecognizer.scale
+            print("scale = \(scale)")
+            pinchRecognizer.scale = 1
+        default:
+            break
+        }
+    }
     
     private var skullRadius: CGFloat {
         return min(bounds.size.width, bounds.size.height) / 2 * scale
@@ -91,8 +102,7 @@ class FaceView: UIView {
     }
     
     
-    private func pathFotSkull() -> UIBezierPath
-    {
+    private func pathForSkull() -> UIBezierPath {
         let path = UIBezierPath(arcCenter: skullCenter, radius: skullRadius, startAngle: 0, endAngle: 2 * CGFloat.pi, clockwise: false)
         path.lineWidth = lineWidth
         return path
@@ -101,7 +111,7 @@ class FaceView: UIView {
     override func draw(_ rect: CGRect) {
         
         color.set()
-        pathFotSkull().stroke()
+        pathForSkull().stroke()
         pathForEye(.left).stroke()
         pathForEye(.right).stroke()
         pathForMouth().stroke()
